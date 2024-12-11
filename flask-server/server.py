@@ -51,11 +51,11 @@ class TaskType(db.Model):
             "name": self.name,
         }
 
-# Initialize the database manually when the app starts
 with app.app_context():
     db.create_all()
 
-    # Add predefined task types if they don't already exist
+    # Add  task types if they don't already exist
+    # Add more in future
     if not TaskType.query.first():
         predefined_task_types = [
             "social event",
@@ -69,17 +69,18 @@ with app.app_context():
             db.session.add(task_type)
         db.session.commit()
 
-# Routes remain unchanged
+# PULL DATA FROM TASK TYPES
 @app.route('/api/task_types', methods=['GET'])
 def get_task_types():
     task_types = TaskType.query.all()
     return jsonify([task_type.to_dict() for task_type in task_types])
-
+# EXISTING TASKS
 @app.route('/api/tasks', methods=['GET'])
 def get_tasks():
     tasks = Task.query.all()
     return jsonify([task.to_dict() for task in tasks])
 
+# ADD TASKS
 @app.route('/api/tasks', methods=['POST'])
 def add_task():
     data = request.json
@@ -98,6 +99,7 @@ def add_task():
         db.session.rollback()
         return jsonify({"message": "Error adding task", "error": str(e)}), 500
 
+# EDIT TASKS
 @app.route('/api/tasks/<int:task_id>', methods=['PUT'])
 def edit_task(task_id):
     task = Task.query.get(task_id)
@@ -117,6 +119,7 @@ def edit_task(task_id):
         db.session.rollback()
         return jsonify({"message": "Error updating task", "error": str(e)}), 500
 
+# DELETE TASKS
 @app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
     task = Task.query.get(task_id)
@@ -127,6 +130,7 @@ def delete_task(task_id):
     db.session.commit()
     return jsonify({"message": "Task deleted"})
 
+# GENERATE REPORT 
 @app.route('/api/report', methods=['GET'])
 def get_report():
     task_type_id = request.args.get('task_type', None)
